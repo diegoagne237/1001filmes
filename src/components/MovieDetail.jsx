@@ -1,4 +1,4 @@
-export default function MovieDetail({ movie, entry, onClose, onToggleWatched, onSetRating, onToggleWithMari }) {
+export default function MovieDetail({ movie, entry, onClose, onToggleWatched, onSetRating }) {
   if (!movie) return null
 
   const watched = Boolean(entry?.watched)
@@ -56,15 +56,6 @@ export default function MovieDetail({ movie, entry, onClose, onToggleWatched, on
                 </button>
               ))}
             </div>
-
-            <label className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-[#5a5138]">
-              <input
-                type="checkbox"
-                checked={Boolean(entry?.withMari)}
-                onChange={() => onToggleWithMari(movie.id)}
-              />
-              Assisti com a Mari
-            </label>
           </div>
         </div>
 

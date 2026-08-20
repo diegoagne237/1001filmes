@@ -32,7 +32,7 @@ export default function MovieCard({ movie, entry, onToggleWatched, onOpenDetail 
         </div>
       )}
 
-      <div className="px-4 pb-4.5 pt-3.5">
+      <div className="px-4 pb-5 pt-3.5">
         <h3 className="font-display font-semibold text-[16.5px] leading-tight mb-1.5">
           {movie.title}
         </h3>

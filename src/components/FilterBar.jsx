@@ -22,9 +22,6 @@ export default function FilterBar({ filter, setFilter, decade, setDecade, search
       <button className={chip(filter === 'pendentes')} onClick={() => setFilter('pendentes')}>
         Não assistidos
       </button>
-      <button className={chip(filter === 'mari')} onClick={() => setFilter('mari')}>
-        Com a Mari
-      </button>
 
       <select
         value={decade}

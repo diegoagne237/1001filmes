@@ -3,7 +3,6 @@ export default function Header({ view, setView }) {
     { id: 'acervo', label: 'Acervo' },
     { id: 'assistidos', label: 'Assistidos' },
     { id: 'decadas', label: 'Por década' },
-    { id: 'mari', label: 'Com a Mari' },
   ]
 
   return (

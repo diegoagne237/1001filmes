@@ -8,7 +8,7 @@ import MovieGrid from './components/MovieGrid'
 import MovieDetail from './components/MovieDetail'
 
 export default function App() {
-  const { progress, toggleWatched, setRating, toggleWithMari } = useWatched()
+  const { progress, toggleWatched, setRating } = useWatched()
 
   const [view, setView] = useState('acervo')
   const [filter, setFilter] = useState('todos')
@@ -40,7 +40,6 @@ export default function App() {
 
       if (filter === 'assistidos' && !watched) return false
       if (filter === 'pendentes' && watched) return false
-      if (filter === 'mari' && !entry?.withMari) return false
       if (decade !== 'todas' && String(movie.decade) !== decade) return false
       if (search.trim()) {
         const q = search.trim().toLowerCase()
@@ -87,7 +86,6 @@ export default function App() {
         onClose={() => setSelected(null)}
         onToggleWatched={toggleWatched}
         onSetRating={setRating}
-        onToggleWithMari={toggleWithMari}
       />
     </div>
   )

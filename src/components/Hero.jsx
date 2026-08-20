@@ -17,12 +17,12 @@ export default function Hero({ watchedCount, favoriteDecade, onRandomize }) {
           arquivo. Marque o que já assistiu, dê sua nota e vá carimbando o acervo.
         </p>
         <div className="flex gap-3 items-center">
-          <button className="font-mono text-[13px] tracking-wide px-4.5 py-2.5 rounded-sm border border-ink bg-ink text-cream uppercase">
+          <button className="font-mono text-[13px] tracking-wide px-5 py-2.5 rounded-sm border border-ink bg-ink text-cream uppercase">
             Continuar catalogando
           </button>
           <button
             onClick={onRandomize}
-            className="font-mono text-[13px] tracking-wide px-4.5 py-2.5 rounded-sm border border-ink text-ink uppercase"
+            className="font-mono text-[13px] tracking-wide px-5 py-2.5 rounded-sm border border-ink text-ink uppercase"
           >
             Sortear um filme
           </button>

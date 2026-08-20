@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 const STORAGE_KEY = '1001-filmes:progresso'
 
 // Formato salvo por filme:
-// { watched: bool, rating: number|null, withMari: bool, watchedAt: string|null }
+// { watched: bool, rating: number|null, watchedAt: string|null }
 
 function loadProgress() {
   try {
@@ -23,7 +23,7 @@ export function useWatched() {
 
   const toggleWatched = useCallback((movieId) => {
     setProgress((prev) => {
-      const current = prev[movieId] || { watched: false, rating: null, withMari: false, watchedAt: null }
+      const current = prev[movieId] || { watched: false, rating: null, watchedAt: null }
       const watched = !current.watched
       return {
         ...prev,
@@ -40,25 +40,15 @@ export function useWatched() {
     setProgress((prev) => ({
       ...prev,
       [movieId]: {
-        ...(prev[movieId] || { watched: true, withMari: false, watchedAt: new Date().toISOString() }),
+        ...(prev[movieId] || { watched: true, watchedAt: new Date().toISOString() }),
         watched: true,
         rating,
       },
     }))
   }, [])
 
-  const toggleWithMari = useCallback((movieId) => {
-    setProgress((prev) => {
-      const current = prev[movieId] || { watched: false, rating: null, withMari: false, watchedAt: null }
-      return {
-        ...prev,
-        [movieId]: { ...current, withMari: !current.withMari },
-      }
-    })
-  }, [])
-
   const isWatched = useCallback((movieId) => Boolean(progress[movieId]?.watched), [progress])
   const getEntry = useCallback((movieId) => progress[movieId] || null, [progress])
 
-  return { progress, toggleWatched, setRating, toggleWithMari, isWatched, getEntry }
+  return { progress, toggleWatched, setRating, isWatched, getEntry }
 }

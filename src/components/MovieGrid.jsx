@@ -10,7 +10,7 @@ export default function MovieGrid({ movies, progress, onToggleWatched, onOpenDet
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-5.5 px-10 pb-16">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6 px-10 pb-16">
       {movies.map((movie) => (
         <MovieCard
           key={movie.id}
