@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #17140f;
+  background-image:
+    radial-gradient(ellipse at 20% -10%, rgba(198, 153, 46, 0.08), transparent 45%),
+    radial-gradient(ellipse at 90% 10%, rgba(124, 42, 42, 0.10), transparent 40%);
+  color: #efe6d3;
+  font-family: 'Source Serif 4', serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* selo de "assistido" — o elemento-assinatura do design */
+.stamp {
+  font-family: 'Courier Prime', monospace;
+  font-weight: 700;
+  color: #a33;
+  border: 2.5px solid #a33;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+  transform: translate(-50%, -50%) rotate(-16deg);
+}
