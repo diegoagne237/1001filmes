@@ -1,8 +1,11 @@
+import { placeholderGradient } from '../utils/posterPlaceholder'
+
 export default function MovieDetail({ movie, entry, onClose, onToggleWatched, onSetRating }) {
   if (!movie) return null
 
   const watched = Boolean(entry?.watched)
   const rating = entry?.rating || 0
+  const { from, to } = placeholderGradient(movie.id)
 
   return (
     <div
@@ -15,7 +18,11 @@ export default function MovieDetail({ movie, entry, onClose, onToggleWatched, on
       >
         <div
           className="h-64 flex items-end p-6 text-cream relative"
-          style={{ background: `linear-gradient(160deg, ${movie.colorFrom}, ${movie.colorTo})` }}
+          style={
+            movie.poster_url
+              ? { backgroundImage: `url(${movie.poster_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: `linear-gradient(160deg, ${from}, ${to})` }
+          }
         >
           <span className="font-mono text-xs absolute top-5 right-6 opacity-80">
             Nº {String(movie.ficha).padStart(4, '0')} / 1001

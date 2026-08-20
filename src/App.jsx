@@ -1,20 +1,33 @@
 import { useMemo, useState } from 'react'
-import { movies } from './data/movies'
+import { useAuth } from './hooks/useAuth'
+import { useMovies } from './hooks/useMovies'
 import { useWatched } from './hooks/useWatched'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import FilterBar from './components/FilterBar'
 import MovieGrid from './components/MovieGrid'
 import MovieDetail from './components/MovieDetail'
+import AuthModal from './components/AuthModal'
 
 export default function App() {
-  const { progress, toggleWatched, setRating } = useWatched()
+  const { user, isAdmin, signIn, signUp, signOut } = useAuth()
+  const { movies, loading: moviesLoading } = useMovies()
+  const { progress, toggleWatched, setRating } = useWatched(user?.id)
 
   const [view, setView] = useState('acervo')
   const [filter, setFilter] = useState('todos')
   const [decade, setDecade] = useState('todas')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
+  const [showAuth, setShowAuth] = useState(false)
+
+  const requireAuth = (action) => {
+    if (!user) {
+      setShowAuth(true)
+      return
+    }
+    action()
+  }
 
   const watchedCount = useMemo(
     () => Object.values(progress).filter((entry) => entry.watched).length,
@@ -31,7 +44,7 @@ export default function App() {
     })
     const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
     return top ? `Anos ${String(top[0]).slice(2)}` : null
-  }, [progress])
+  }, [progress, movies])
 
   const filtered = useMemo(() => {
     return movies.filter((movie) => {
@@ -48,19 +61,40 @@ export default function App() {
       }
       return true
     })
-  }, [progress, filter, decade, search])
+  }, [movies, progress, filter, decade, search])
 
   const handleRandomize = () => {
     const pending = movies.filter((m) => !progress[m.id]?.watched)
     const pool = pending.length > 0 ? pending : movies
+    if (pool.length === 0) return
     const pick = pool[Math.floor(Math.random() * pool.length)]
     setSelected(pick)
   }
 
+  if (moviesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-mono text-sm text-[#7a6d52]">
+        Carregando ficha geral…
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen">
-      <Header view={view} setView={setView} />
-      <Hero watchedCount={watchedCount} favoriteDecade={favoriteDecade} onRandomize={handleRandomize} />
+      <Header
+        view={view}
+        setView={setView}
+        user={user}
+        isAdmin={isAdmin}
+        onSignOut={signOut}
+        onOpenAuth={() => setShowAuth(true)}
+      />
+      <Hero
+        watchedCount={watchedCount}
+        favoriteDecade={favoriteDecade}
+        totalMovies={movies.length}
+        onRandomize={handleRandomize}
+      />
       <FilterBar
         filter={filter}
         setFilter={setFilter}
@@ -72,21 +106,25 @@ export default function App() {
       <MovieGrid
         movies={filtered}
         progress={progress}
-        onToggleWatched={toggleWatched}
+        onToggleWatched={(id) => requireAuth(() => toggleWatched(id))}
         onOpenDetail={setSelected}
       />
 
       <div className="text-center pb-12 font-mono text-[11.5px] text-[#5f5540] tracking-wide">
-        — acervo em construção · {movies.length} de {1001} fichas importadas —
+        — acervo em construção · {movies.length} de 1001 fichas importadas —
       </div>
 
       <MovieDetail
         movie={selected}
         entry={selected ? progress[selected.id] : null}
         onClose={() => setSelected(null)}
-        onToggleWatched={toggleWatched}
-        onSetRating={setRating}
+        onToggleWatched={(id) => requireAuth(() => toggleWatched(id))}
+        onSetRating={(id, r) => requireAuth(() => setRating(id, r))}
       />
+
+      {showAuth && (
+        <AuthModal onClose={() => setShowAuth(false)} onSignIn={signIn} onSignUp={signUp} />
+      )}
     </div>
   )
 }

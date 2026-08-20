@@ -1,5 +1,8 @@
+import { placeholderGradient } from '../utils/posterPlaceholder'
+
 export default function MovieCard({ movie, entry, onToggleWatched, onOpenDetail }) {
   const watched = Boolean(entry?.watched)
+  const { from, to } = placeholderGradient(movie.id)
 
   return (
     <div
@@ -13,9 +16,15 @@ export default function MovieCard({ movie, entry, onToggleWatched, onOpenDetail 
 
       <div
         className="h-[230px] flex items-end p-3.5 text-cream"
-        style={{
-          background: `linear-gradient(160deg, ${movie.colorFrom}, ${movie.colorTo})`,
-        }}
+        style={
+          movie.poster_url
+            ? {
+                backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url(${movie.poster_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { background: `linear-gradient(160deg, ${from}, ${to})` }
+        }
       >
         <span className="font-mono text-[11px] opacity-85">{movie.year}</span>
       </div>

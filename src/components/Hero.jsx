@@ -1,12 +1,11 @@
-import { TOTAL_FILMES } from '../data/movies'
-
-export default function Hero({ watchedCount, favoriteDecade, onRandomize }) {
-  const pct = Math.round((watchedCount / TOTAL_FILMES) * 100)
+export default function Hero({ watchedCount, favoriteDecade, totalMovies, onRandomize }) {
+  const total = totalMovies || 1001
+  const pct = total > 0 ? Math.round((watchedCount / total) * 100) : 0
 
   return (
     <div className="mx-10 mt-9 mb-5 grid grid-cols-1 md:grid-cols-[1.1fr_1.4fr] rounded-sm overflow-hidden shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)] relative bg-cream text-ink">
       <div className="px-8 md:pl-[60px] py-9 border-r border-dashed border-ink/25">
-        <div className="font-mono text-xs text-wine">FICHA GERAL — Nº 0000 / {TOTAL_FILMES}</div>
+        <div className="font-mono text-xs text-wine">FICHA GERAL — Nº 0000 / {total}</div>
         <h1 className="font-display font-black text-4xl md:text-[44px] leading-[1.02] mt-2.5 mb-1.5 tracking-tight">
           1001 filmes
           <br />
@@ -33,7 +32,7 @@ export default function Hero({ watchedCount, favoriteDecade, onRandomize }) {
         <div className="bg-cream p-5">
           <div className="font-display font-black text-3xl leading-none">{watchedCount}</div>
           <div className="font-mono text-[11px] uppercase tracking-wide text-[#6b5f47] mt-2">
-            Assistidos / {TOTAL_FILMES}
+            Assistidos / {total}
           </div>
         </div>
         <div className="bg-cream p-5">
