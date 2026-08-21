@@ -7,12 +7,15 @@ import Hero from './components/Hero'
 import FilterBar from './components/FilterBar'
 import MovieGrid from './components/MovieGrid'
 import MovieDetail from './components/MovieDetail'
+import AdminPanel from './components/AdminPanel'
 import AuthModal from './components/AuthModal'
 
 export default function App() {
   const { user, isAdmin, signIn, signUp, signOut } = useAuth()
-  const { movies, loading: moviesLoading } = useMovies()
+  const { movies, loading: moviesLoading, reload: reloadMovies } = useMovies()
   const { progress, toggleWatched, setRating } = useWatched(user?.id)
+
+  const wantsAdmin = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1'
 
   const [view, setView] = useState('acervo')
   const [filter, setFilter] = useState('todos')
@@ -76,6 +79,36 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center font-mono text-sm text-[#7a6d52]">
         Carregando ficha geral…
       </div>
+    )
+  }
+
+  if (wantsAdmin) {
+    if (!isAdmin) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 font-mono text-sm text-[#7a6d52]">
+          <div>Essa área é restrita ao admin.</div>
+          {!user && (
+            <button onClick={() => setShowAuth(true)} className="underline text-gold">
+              Entrar
+            </button>
+          )}
+          <a href="/" className="underline">
+            Voltar pro acervo
+          </a>
+          {showAuth && (
+            <AuthModal onClose={() => setShowAuth(false)} onSignIn={signIn} onSignUp={signUp} />
+          )}
+        </div>
+      )
+    }
+    return (
+      <AdminPanel
+        movies={movies}
+        reloadMovies={reloadMovies}
+        onExit={() => {
+          window.location.href = '/'
+        }}
+      />
     )
   }
 
