@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { searchMovie, pickBestMatch, posterUrl } from '../lib/tmdb'
 
 const EMPTY_FORM = {
   id: '',
@@ -31,6 +32,60 @@ export default function AdminPanel({ movies, reloadMovies, onExit }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
+  const [importingId, setImportingId] = useState(null)
+  const [bulkImporting, setBulkImporting] = useState(false)
+  const [bulkStatus, setBulkStatus] = useState('')
+
+  const importCover = async (movie) => {
+    setImportingId(movie.id)
+    setError(null)
+    try {
+      const results = await searchMovie(movie.title, movie.year)
+      const match = pickBestMatch(results, movie.year)
+      if (!match || !match.poster_path) {
+        setError(`Não achei capa pra "${movie.title}" na TMDB.`)
+        return
+      }
+      const { error: updateError } = await supabase
+        .from('movies')
+        .update({ poster_url: posterUrl(match.poster_path), tmdb_id: match.id })
+        .eq('id', movie.id)
+      if (updateError) throw updateError
+      reloadMovies()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setImportingId(null)
+    }
+  }
+
+  const importAllCovers = async () => {
+    const pending = movies.filter((m) => !m.poster_url)
+    if (pending.length === 0) return
+    setBulkImporting(true)
+    setError(null)
+    for (let i = 0; i < pending.length; i++) {
+      const movie = pending[i]
+      setBulkStatus(`Importando ${i + 1}/${pending.length}: ${movie.title}`)
+      try {
+        const results = await searchMovie(movie.title, movie.year)
+        const match = pickBestMatch(results, movie.year)
+        if (match?.poster_path) {
+          await supabase
+            .from('movies')
+            .update({ poster_url: posterUrl(match.poster_path), tmdb_id: match.id })
+            .eq('id', movie.id)
+        }
+      } catch (err) {
+        console.error(`Falhou em ${movie.title}:`, err.message)
+      }
+      // pequena pausa pra não estourar rate limit da TMDB
+      await new Promise((r) => setTimeout(r, 300))
+    }
+    setBulkStatus('')
+    setBulkImporting(false)
+    reloadMovies()
+  }
 
   const startEdit = (movie) => {
     setEditingId(movie.id)
@@ -120,6 +175,20 @@ export default function AdminPanel({ movies, reloadMovies, onExit }) {
         </button>
       </div>
 
+      <div className="flex items-center justify-between bg-cream/10 border border-line rounded-sm px-4 py-3 mb-6">
+        <div className="font-mono text-[12px] text-[#c9bd9e]">
+          {movies.filter((m) => !m.poster_url).length} filme(s) sem capa
+          {bulkImporting && bulkStatus && <span className="text-gold"> · {bulkStatus}</span>}
+        </div>
+        <button
+          onClick={importAllCovers}
+          disabled={bulkImporting || movies.every((m) => m.poster_url)}
+          className="font-mono text-[11px] uppercase tracking-wide bg-gold text-ink rounded-full px-4 py-2 disabled:opacity-40"
+        >
+          {bulkImporting ? 'Importando…' : 'Importar todas as capas (TMDB)'}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] gap-8">
         {/* Formulário */}
         <div className="bg-cream text-ink rounded-sm p-6 h-fit">
@@ -193,9 +262,13 @@ export default function AdminPanel({ movies, reloadMovies, onExit }) {
             {filteredMovies.map((movie) => (
               <div
                 key={movie.id}
-                className="flex items-center justify-between px-4 py-3 border-b border-line last:border-b-0"
+                className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-b-0"
               >
-                <div className="min-w-0">
+                <div
+                  className="w-10 h-14 rounded-sm shrink-0 bg-cover bg-center bg-ink/30"
+                  style={movie.poster_url ? { backgroundImage: `url(${movie.poster_url})` } : undefined}
+                />
+                <div className="min-w-0 flex-1">
                   <div className="font-display text-[15px] truncate">
                     <span className="font-mono text-xs text-gold mr-2">
                       Nº{String(movie.ficha ?? 0).padStart(4, '0')}
@@ -208,6 +281,13 @@ export default function AdminPanel({ movies, reloadMovies, onExit }) {
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0 ml-3">
+                  <button
+                    onClick={() => importCover(movie)}
+                    disabled={importingId === movie.id}
+                    className="font-mono text-[11px] uppercase border border-gold text-gold rounded-full px-3 py-1 disabled:opacity-40"
+                  >
+                    {importingId === movie.id ? 'Buscando…' : movie.poster_url ? 'Trocar capa' : 'Importar capa'}
+                  </button>
                   <button
                     onClick={() => startEdit(movie)}
                     className="font-mono text-[11px] uppercase border border-line-light rounded-full px-3 py-1 text-[#c9bd9e]"
